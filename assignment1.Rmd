@@ -1,0 +1,84 @@
+---
+title: "Assignment 1"
+output:
+  html_document: default
+  pdf_document: default
+date: "2025-03-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("tidyverse")
+```
+
+
+```{r avocados}
+avocado_csv <- read.csv("avocado.csv")
+# Structure
+str(avocado_csv)
+
+# List variables
+names(avocado_csv)
+
+# Top 15 rows
+head(avocado_csv, 10)
+
+# User defined function
+get_highest_price_date <- function() {
+    print(avocado_csv[which.max(avocado_csv$AveragePrice), ]$Date)
+}
+get_highest_price_date()
+
+# Filter rows
+subset(avocado_csv, AveragePrice < 0.5)$Date
+
+# New dataframe
+new_df <- cbind(avocado_csv$AveragePrice, avocado_csv$Total.Volume)
+
+# Remove missing values
+avocado_csv <- na.omit(avocado_csv)
+
+# Remove duplicates
+avocado_csv <- unique.data.frame(avocado_csv)
+
+# Reorder in desc order
+avocado_desc <- avocado_csv[order(-avocado_csv$AveragePrice),]
+
+# Rename columns
+avocado_rename <- avocado_csv %>% rename(plu4225_sold_count = "X4225", plu4770_sold_count = "X4770")
+
+
+# Add new variables
+avocado_csv <- transform(avocado_csv, average_price_cad = avocado_csv$AveragePrice * 1.43)
+
+# Training set
+set.seed(231)
+training_index <- sample(1:nrow(avocado_csv), 10, replace = FALSE)
+avocado_csv[training_index, ]
+
+# Summary stats
+summary(avocado_csv)
+
+# Stat function
+getMode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+mean(avocado_csv$AveragePrice, na.rm = TRUE)
+median(avocado_csv$AveragePrice, na.rm = TRUE)
+getMode(avocado_csv$region)
+range(avocado_csv$AveragePrice, na.rm = TRUE)
+
+# Scatter plot
+plot(avocado_csv$Total.Volume, avocado_csv$AveragePrice)
+
+
+# Bar plot
+max_by_year <- group_by(avocado_csv, year) %>% summarise(AveragePrice = max(AveragePrice))
+barplot(max_by_year$AveragePrice, max_by_year$year)
+
+
+# Pearson correlation
+cor(avocado_csv$AveragePrice, avocado_csv$Total.Volume, method = "pearson")
+```
+
